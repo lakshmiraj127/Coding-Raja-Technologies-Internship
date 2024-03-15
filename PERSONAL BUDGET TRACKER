@@ -1,0 +1,71 @@
+import json
+
+def load_transactions():
+    try:
+        with open('transactions.json', 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {'income': [], 'expenses': []}
+
+def save_transactions(transactions):
+    with open('transactions.json', 'w') as file:
+        json.dump(transactions, file)
+
+def add_income(category, amount, transactions):
+    transactions['income'].append({'category': category, 'amount': amount})
+    save_transactions(transactions)
+
+def add_expense(category, amount, transactions):
+    transactions['expenses'].append({'category': category, 'amount': amount})
+    save_transactions(transactions)
+
+def calculate_budget(transactions):
+    total_income = sum(entry['amount'] for entry in transactions['income'])
+    total_expenses = sum(entry['amount'] for entry in transactions['expenses'])
+    remaining_budget = total_income - total_expenses
+    return remaining_budget
+
+def analyze_expenses(transactions):
+    expense_categories = {}
+    for entry in transactions['expenses']:
+        category = entry['category']
+        amount = entry['amount']
+        if category not in expense_categories:
+            expense_categories[category] = 0
+        expense_categories[category] += amount
+    return expense_categories
+
+def main():
+    transactions = load_transactions()
+    
+    while True:
+        print("\n1. Add Income")
+        print("2. Add Expense")
+        print("3. View Remaining Budget")
+        print("4. Analyze Expenses")
+        print("5. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            category = input("Enter income category: ")
+            amount = float(input("Enter amount: "))
+            add_income(category, amount, transactions)
+        elif choice == '2':
+            category = input("Enter expense category: ")
+            amount = float(input("Enter amount: "))
+            add_expense(category, amount, transactions)
+        elif choice == '3':
+            remaining_budget = calculate_budget(transactions)
+            print(f"Remaining Budget: ${remaining_budget}")
+        elif choice == '4':
+            expense_analysis = analyze_expenses(transactions)
+            print("Expense Analysis:")
+            for category, amount in expense_analysis.items():
+                print(f"{category}: ${amount}")
+        elif choice == '5':
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if _name_ == "_main_":
+    main()
